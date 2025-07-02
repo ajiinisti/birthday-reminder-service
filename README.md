@@ -1,5 +1,7 @@
 # 🎂 Birthday Reminder Service
 
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ajiinisti/birthday-reminder-service/main/coverage-badge.json)](./coverage/lcov-report/index.html)
+
 A Node.js RESTful API for managing users and sending birthday reminders at 9 AM based on each user's timezone. Built with **Express**, **MongoDB**, **Luxon**, and **Node-Cron**.
 
 ---
@@ -111,18 +113,18 @@ npm test
 
 ### 🌍 Valid Timezone value example
 
-America/New_York
-America/Chicago
-Europe/London
-Europe/Paris
-Asia/Jakarta
-Asia/Bangkok
-Africa/Cairo
-Africa/Nairobi
-Australia/Sydney
-Australia/Melbourne
-Asia/Dubai
-Asia/Riyadh
+- America/New_York
+- America/Chicago
+- Europe/London
+- Europe/Paris
+- Asia/Jakarta
+- Asia/Bangkok
+- Africa/Cairo
+- Africa/Nairobi
+- Australia/Sydney
+- Australia/Melbourne
+- Asia/Dubai
+- Asia/Riyadh
 
 ---
 
