@@ -4,20 +4,22 @@ import dotenv from 'dotenv';
 import app from '../../src/app.js';
 import User from '../../src/models/user.models.js';
 import { describe, jest } from '@jest/globals';
+import { birthdayQueue } from '../../src/worker/birthdayQueue.js';
+import scheduleBirthday from '../../src/worker/scheduleBirthday.js';
 
 dotenv.config({ path: '.env.test' });
 let userId;
 
 beforeAll(async () => {
-await mongoose.connect(process.env.MONGO_URI_TEST);
+    await mongoose.connect(process.env.MONGO_URI_TEST);
 });
 
 afterAll(async () => {
-await mongoose.connection.close();
+    await mongoose.connection.close();
 });
 
 beforeEach(async () => {
-await User.deleteMany();
+    await User.deleteMany();
 });
 
 const mockUser = {
@@ -155,15 +157,88 @@ describe('Update User', ()=> {
         let res = await request(app).put(`/users/${fakeId}`).send({ name: 'X' });
         expect(res.statusCode).toBe(404);
     });
+    
+    it('reschedules the birthday job when birthday or timezone change', async () => {
+        const user = await User.create(mockUser);
+
+        const jobMock = { remove: jest.fn() };
+        const getJobSpy = jest.spyOn(birthdayQueue, 'getJob').mockResolvedValue(jobMock);
+        const scheduleSpy = jest.spyOn(scheduleBirthday, 'scheduleNextBirthdayJob').mockImplementation(() => {
+            console.log('Mocked scheduleNextBirthdayJob');
+        });
+
+        const tomorrow = new Date(user.birthday);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const res = await request(app)
+            .put(`/users/${user._id}`)
+            .send({
+                birthday: tomorrow.toISOString(),
+                timezone: 'Asia/Singapore',
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(getJobSpy).toHaveBeenCalledWith(`birthday-${user._id}`);
+        expect(jobMock.remove).toHaveBeenCalled();
+        expect(scheduleSpy).toHaveBeenCalledWith(expect.objectContaining({ _id: user._id }));
+
+        getJobSpy.mockRestore();
+        scheduleSpy.mockRestore();
+    });
+
+    it('skips rescheduling if there is no existing birthday job', async () => {
+        const user = await User.create(mockUser);
+        const getJobSpy = jest.spyOn(birthdayQueue, 'getJob').mockResolvedValue(null);
+        const scheduleSpy = jest.spyOn(scheduleBirthday, 'scheduleNextBirthdayJob').mockImplementation(() => {
+            console.log('Mocked scheduleNextBirthdayJob');
+        });
+
+        const tomorrow = new Date(user.birthday);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+
+        const res = await request(app)
+            .put(`/users/${user._id}`)
+            .send({
+            birthday: tomorrow.toISOString(),
+            timezone: 'Asia/Singapore',
+            });
+
+        expect(res.statusCode).toBe(200);
+        expect(getJobSpy).toHaveBeenCalledWith(`birthday-${user._id}`);
+        expect(scheduleSpy).toHaveBeenCalledWith(expect.objectContaining({ _id: user._id }));
+
+        getJobSpy.mockRestore();
+        scheduleSpy.mockRestore();
+    });
 
 })
 
 describe('Delete User', () => {
-    it('should delete a user', async () => {
+    it('should delete a user but failed to remove the scheduled birthday job', async () => {
         const user = await User.create(mockUser);
         const res = await request(app).delete(`/users/${user._id}`);
         expect(res.statusCode).toBe(200);
         expect(res.body.message).toBe('User deleted');
+    });
+
+    it('deletes the user and removes the scheduled birthday job', async () => {
+        const user = await User.create(mockUser);
+
+        const jobMock = { remove: jest.fn() };
+        const getJobSpy = jest.spyOn(birthdayQueue, 'getJob').mockResolvedValue(jobMock);
+
+        const res = await request(app).delete(`/users/${user._id}`);
+
+        expect(res.statusCode).toBe(200);
+        expect(res.body).toEqual({ message: 'User deleted' });
+
+        expect(getJobSpy).toHaveBeenCalledWith(`birthday-${user._id}`);
+        expect(jobMock.remove).toHaveBeenCalled();
+
+        const deletedUser = await User.findById(user._id);
+        expect(deletedUser).toBeNull();
+
+        getJobSpy.mockRestore();
     });
 
     it('should return error db on delete a user', async () => {

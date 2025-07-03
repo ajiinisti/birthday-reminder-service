@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
-import startBirthdayWorker from './worker/birthdayWorker.js';
+import { connectRedis } from './redis-setup.js';
+import startBirthdayProcessor from './worker/birthdayProcessor.js';
+import { cleanupStaleJobs, removeAllBirthdayJobs, scheduleAllBirthdays } from './worker/scheduleBirthday.js';
 
 export const initApp = async () => {
   const mongoUri = process.env.MONGO_URI;
@@ -12,6 +14,8 @@ export const initApp = async () => {
   console.log('✅ Connected to MongoDB');
 
   if (process.env.NODE_ENV !== 'test') {
-    startBirthdayWorker();
+    connectRedis();
+    scheduleAllBirthdays();
+    startBirthdayProcessor(); 
   }
 };
