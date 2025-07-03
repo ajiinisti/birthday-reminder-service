@@ -8,10 +8,23 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     env:
-      MONGO_URI_TEST=mongodb://localhost:27017/birthday_test
-      NODE_ENV=test
-      PORT=5001
+      MONGO_URI_TEST: mongodb://localhost:27017/birthday_test
+      NODE_ENV: test
+      PORT: 5001
+
+    services:
+      mongo:
+        image: mongo:6
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd="mongosh --eval 'db.adminCommand(\"ping\")'" 
+          --health-interval=10s 
+          --health-timeout=5s 
+          --health-retries=5
+
     steps:
       - uses: actions/checkout@v3
 
