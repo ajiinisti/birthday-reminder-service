@@ -48,6 +48,13 @@ A Node.js RESTful API for managing users and sending birthday reminders at 9 AM 
 
 ---
 
+## ▶️ How to Run
+```bash
+   docker-compose up --build
+```
+
+---
+
 ## 🔧 Project Structure
 
 ```
