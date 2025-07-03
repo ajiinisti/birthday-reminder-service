@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --coverage",
+    "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --coverage --forceExit",
     "badge": "coverage-badger --output coverage-badge.json --input coverage/coverage-final.json"
   },
   "dependencies": {
