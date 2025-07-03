@@ -13,12 +13,14 @@
     "badge": "coverage-badger --output coverage-badge.json --input coverage/coverage-final.json"
   },
   "dependencies": {
+    "bullmq": "^5.56.1",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "express-validator": "^7.2.1",
     "luxon": "^3.6.1",
     "mongoose": "^7.8.7",
-    "node-cron": "^3.0.3"
+    "node-cron": "^3.0.3",
+    "redis": "^5.5.6"
   },
   "devDependencies": {
     "coverage-badger": "^1.0.1",
