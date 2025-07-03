@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { bullmqConnection } from '../redis-setup.js'; // ✅ change this
 import BirthdayLog from '../models/birthdaylog.models.js';
-import { scheduleNextBirthdayJob } from './scheduleBirthday.js';
+import scheduleBirthday from './scheduleBirthday.js';
 import User from '../models/user.models.js';
 import { DateTime } from 'luxon';
 
@@ -24,7 +24,7 @@ export default function startBirthdayProcessor() {
 
                 const user = await User.findById(userId);
                 if (user) {
-                    await scheduleNextBirthdayJob(user); // next year
+                    await scheduleBirthday.scheduleNextBirthdayJob(user); // next year
                 }
             } catch (err) {
                 console.error(`❌ Error sending birthday to ${email}:`, err.message);

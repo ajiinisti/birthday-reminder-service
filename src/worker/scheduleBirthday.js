@@ -8,8 +8,8 @@ async function scheduleNextBirthdayJob(user) {
     .setZone(user.timezone)
     .set({
       year: now.year,
-      hour: 14,
-      minute: 55,
+      hour: 9,
+      minute: 0,
       second: 0,
       millisecond: 0,
     });

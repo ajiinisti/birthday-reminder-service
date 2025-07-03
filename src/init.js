@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { connectRedis } from './redis-setup.js';
 import startBirthdayProcessor from './worker/birthdayProcessor.js';
-import { cleanupStaleJobs, removeAllBirthdayJobs, scheduleAllBirthdays } from './worker/scheduleBirthday.js';
+import scheduleBirthday from './worker/scheduleBirthday.js';
 
 export const initApp = async () => {
   const mongoUri = process.env.MONGO_URI;
@@ -15,7 +15,7 @@ export const initApp = async () => {
 
   if (process.env.NODE_ENV !== 'test') {
     connectRedis();
-    scheduleAllBirthdays();
+    scheduleBirthday.scheduleAllBirthdays();
     startBirthdayProcessor(); 
   }
 };
