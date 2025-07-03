@@ -9,8 +9,10 @@ A Node.js RESTful API for managing users and sending birthday reminders at 9 AM 
 ## 📦 Features
 
 - ✅ CRUD operations for users  
-- ⏰ Auto-scheduled birthday jobs via BullMQ
+- ⏰ Auto-scheduled birthday jobs via BullMQ at 9 AM user time
 - 🌐 Timezone validation via [IANA zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)  
+- 🔁 Automatically recover scheduled jobs after server restart/crash
+- 🔂 Retries up to 3 times if job fails (with exponential backoff)
 - ♻️ Reschedules jobs on birthday/timezone change 
 - 🧪 Test coverage using Jest & Supertest
 
@@ -141,7 +143,6 @@ npm test
 ---
 
 ## ⏰ Birthday Scheduling (BullMQ)
-
 - A job is scheduled to send a birthday message at 9 AM in user's timezone
 - Only one job per user is maintained (jobId = birthday-<userId>)
 - Jobs are rescheduled only if birthday or timezone changes
@@ -150,10 +151,27 @@ npm test
    - 🔁 Rescheduled: when birthday/timezone is updated
    - 🗑 Removed: when user is deleted or invalid
 
-```
+Output
+``` bash
 🎉 Happy Birthday, John! (john@example.com)
 ```
+---
 
+## 🔁 Job Recovery After Server Restart
+When the server starts, it runs a job validation function (scheduleAllBirthdays) that:
+- Loads all active MongoDB users.
+- Checks existing jobs in the queue (delayed, waiting, active).
+- Reschedules any missing jobs, ensuring the system recovers after crash/restart.
+This prevents lost birthday messages even if the server goes down temporarily.
+
+---
+
+## 🔃 Retry Mechanism
+Each birthday message job is:
+- Scheduled at 9 AM in the user’s timezone
+- Given a unique jobId like birthday-<userId>
+- Configured to retry up to 3 times
+- Uses exponential backoff, starting with a 1-minute delay
 
 ---
 
