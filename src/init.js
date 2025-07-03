@@ -14,7 +14,7 @@ export const initApp = async () => {
   console.log('✅ Connected to MongoDB');
 
   if (process.env.NODE_ENV !== 'test') {
-    await connectRedis();
+    connectRedis();
     scheduleBirthday.scheduleAllBirthdays();
     startBirthdayProcessor(); 
   }
