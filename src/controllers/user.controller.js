@@ -1,3 +1,4 @@
+import birthdaylogModels from '../models/birthdaylog.models.js';
 import User from '../models/user.models.js';
 import { validateUserInput, validateUserUpdate } from '../validators/userValidator.js';
 import { birthdayQueue } from '../worker/birthdayQueue.js';
@@ -83,6 +84,9 @@ export const deleteUser = async (req, res) => {
     }else{
       console.log(` Failed to remove the job`)
     }
+
+    const result = await birthdaylogModels.deleteMany({ userId: user._id });
+    console.log(`🗑 Deleted ${result.deletedCount} birthday logs for ${user.email}`);
 
     res.json({ message: 'User deleted' });
   } catch (err) {
