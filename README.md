@@ -2,16 +2,17 @@
 
 [![codecov](https://codecov.io/gh/ajiinisti/birthday-reminder-service/branch/main/graph/badge.svg)](https://codecov.io/gh/ajiinisti/birthday-reminder-service)
 
-A Node.js RESTful API for managing users and sending birthday reminders at 9 AM based on each user's timezone. Built with **Express**, **MongoDB**, **Luxon**, and **Node-Cron**.
+A Node.js RESTful API for managing users and sending birthday reminders at 9 AM based on each user's timezone. Built with **Express**, **BullMQ**, **Redis**, **MongoDB**, and **Luxon**.
 
 ---
 
 ## 📦 Features
 
 - ✅ CRUD operations for users  
-- ⏰ Birthday worker runs hourly and logs birthday greetings  
+- ⏰ Auto-scheduled birthday jobs via BullMQ
 - 🌐 Timezone validation via [IANA zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)  
-- 🧪 Full test coverage using Jest & Supertest
+- ♻️ Reschedules jobs on birthday/timezone change 
+- 🧪 Test coverage using Jest & Supertest
 
 ---
 
@@ -64,22 +65,24 @@ src/
 ├── app.js
 ├── init.js
 ├── server.js
+├── redis-setup.js
 ├── routes/
 │   └── user.routes.js
 ├── controllers/
 │   └── user.controller.js
 ├── models/
+│   └── birthdaylog.models.js
 │   └── user.models.js
 ├── validators/
 │   └── userValidator.js
 └── worker/
-    └── birthdayWorker.js
-
+    ├── birthdayProcessor.js
+    ├── scheduleBirthday.js
+    └── birthdayQueue.js
 tests/
 ├── controllers/user.controller.test.js
 ├── models/user.models.test.js
-├── validators/user.validator.test.js
-└── worker/birthdayWorker.test.js
+└── validators/user.validator.test.js
 ```
 
 ---
@@ -137,34 +140,38 @@ npm test
 
 ---
 
-## ⏰ Birthday Cron Job
+## ⏰ Birthday Scheduling (BullMQ)
 
-The worker runs every hour (`0 * * * *`).  
-If it's **9 AM** in the user's timezone **and** it's their birthday:
+- A job is scheduled to send a birthday message at 9 AM in user's timezone
+- Only one job per user is maintained (jobId = birthday-<userId>)
+- Jobs are rescheduled only if birthday or timezone changes
+- Jobs lifecycle:
+   - ➕ Created: when a user is added
+   - 🔁 Rescheduled: when birthday/timezone is updated
+   - 🗑 Removed: when user is deleted or invalid
 
 ```
 🎉 Happy Birthday, John! (john@example.com)
 ```
 
-You can find this logic in `src/worker/birthdayWorker.js`.
 
 ---
 
 ## 🛠 Tech Stack
 
-- Node.js  
-- Express  
-- MongoDB + Mongoose  
-- Luxon  
-- Node-Cron  
-- Jest + Supertest
+- Node.js
+- Express.js
+- MongoDB + Mongoose
+- Luxon (timezone/date)
+- Redis + BullMQ (job queue)
+- Jest + Supertest (testing)
+- Docker + Docker Compose
 
 ---
 
 ## 📝 Assumptions & Design Notes
-- The birthday message is logged to the console instead of sending an actual email.
-- User timezone is validated using Luxon’s IANA zone check.
-- The birthday check runs hourly and triggers exactly at 9 AM user time.
-- MongoDB must be running and accessible (via Docker or locally).
+- Birthday greetings are logged to console, not emailed
+- You can view or clear Redis jobs using redis-cli on http://localhost:8081/
+- Ensure server time and timezone are not affecting scheduled jobs
 
 ---
