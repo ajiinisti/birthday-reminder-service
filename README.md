@@ -1,6 +1,6 @@
 # 🎂 Birthday Reminder Service
 
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/ajiinisti/birthday-reminder-service/main/coverage-badge.json)](./coverage/lcov-report/index.html)
+[![codecov](https://codecov.io/gh/ajiinisti/birthday-reminder-service/branch/main/graph/badge.svg)](https://codecov.io/gh/ajiinisti/birthday-reminder-service)
 
 A Node.js RESTful API for managing users and sending birthday reminders at 9 AM based on each user's timezone. Built with **Express**, **MongoDB**, **Luxon**, and **Node-Cron**.
 

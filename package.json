@@ -10,7 +10,7 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "test": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --detectOpenHandles --coverage",
-    "badge": "coverage-badger -o coverage-badge.json -p coverage/coverage-final.json"
+    "badge": "coverage-badger --output coverage-badge.json --input coverage/coverage-final.json"
   },
   "dependencies": {
     "dotenv": "^16.6.1",
