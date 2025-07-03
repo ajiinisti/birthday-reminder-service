@@ -20,7 +20,7 @@ A Node.js RESTful API for managing users and sending birthday reminders at 9 AM 
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/birthday-reminder-service.git
+   git clone https://github.com/ajiinisti/birthday-reminder-service.git
    cd birthday-reminder-service
    ```
 
@@ -48,9 +48,11 @@ A Node.js RESTful API for managing users and sending birthday reminders at 9 AM 
 
 ---
 
-## ▶️ How to Run
+## 🐳 Run with Docker
+
 ```bash
-   docker-compose up --build
+# Build and run the service with Docker Compose
+docker-compose up --build
 ```
 
 ---
@@ -156,5 +158,13 @@ You can find this logic in `src/worker/birthdayWorker.js`.
 - Luxon  
 - Node-Cron  
 - Jest + Supertest
+
+---
+
+## 📝 Assumptions & Design Notes
+- The birthday message is logged to the console instead of sending an actual email.
+- User timezone is validated using Luxon’s IANA zone check.
+- The birthday check runs hourly and triggers exactly at 9 AM user time.
+- MongoDB must be running and accessible (via Docker or locally).
 
 ---
