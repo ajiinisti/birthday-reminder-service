@@ -1,4 +1,4 @@
-import { validateUserInput, validateUserUpdate } from '../../src/validators/user.validator.js';
+import { validateUserInput, validateUserUpdate } from '../../src/validators/userValidator';
 
 describe('validateUserInput()', () => {
   it('should return no errors for valid input', () => {
