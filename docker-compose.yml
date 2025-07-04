@@ -21,10 +21,11 @@ services:
       - mongo-data:/data/db
 
   redis:
-    image: redis:7
+    image: redis
     container_name: redis
     ports:
       - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     volumes:
       - redis-data:/data
 

@@ -3,7 +3,7 @@ import { birthdayQueue } from './birthdayQueue.js';
 import userModels from '../models/user.models.js';
 
 async function scheduleNextBirthdayJob(user) {
-  const now = DateTime.now().setZone(user.timezone);
+  const now = DateTime.now().setZone(user.timezone)
   let nextBirthday = DateTime.fromJSDate(user.birthday)
     .setZone(user.timezone)
     .set({
@@ -18,6 +18,14 @@ async function scheduleNextBirthdayJob(user) {
     nextBirthday = nextBirthday.plus({ years: 1 });
   }
 
+  const jobId = `birthday-${user._id}-${nextBirthday}`;
+  const existingJob = await birthdayQueue.getJob(jobId);
+
+  if (existingJob) {
+    console.log(`⚠️ Job already scheduled for ${user.email}`);
+    return;
+  } 
+
   const delay = nextBirthday.toUTC().toMillis() - Date.now();
 
   await birthdayQueue.add(
@@ -30,7 +38,7 @@ async function scheduleNextBirthdayJob(user) {
     },
     {
       delay,
-      jobId: `birthday-${user._id}`, // ensures only one scheduled job per user
+      jobId: jobId, 
       attempts: 3, // retry on failure
       backoff: {
         type: 'exponential',

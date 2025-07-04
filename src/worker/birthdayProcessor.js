@@ -15,6 +15,7 @@ export default function startBirthdayProcessor() {
             const alreadySent = await BirthdayLog.findOne({ userId, date: today });
             if (alreadySent) {
                 console.log(`⚠️ Already sent birthday message to ${email} today.`);
+                await scheduleBirthday.scheduleNextBirthdayJob(userId); 
                 return;
             }
 
